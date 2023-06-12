@@ -1,11 +1,15 @@
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { FaRegHeart } from "react-icons/fa";
 
 function CatCard({ created = false }) {
   return (
-    <button className="w-full rounded-xl overflow-hidden shadow-lg hover:shadow-xl shadow-slate-600/20  hover:-translate-y-1 duration-300">
+    <Link
+      href="/sdyhujgds"
+      className="w-full rounded-xl overflow-hidden shadow-lg hover:shadow-xl shadow-slate-600/20  hover:-translate-y-1 duration-300"
+    >
       <div className="w-full h-48 relative">
         <div className="z-10 absolute right-4 bottom-4 bg-white/70 py-1 px-3 rounded-full border border-pink-300">
           <h3 className="text-xs text-pink-500">FOR ADOPTION</h3>
@@ -49,7 +53,7 @@ function CatCard({ created = false }) {
           </div>
         )}
       </div>
-    </button>
+    </Link>
   );
 }
 

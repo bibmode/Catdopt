@@ -1,24 +1,39 @@
 "use client";
 
 import CatCard from "@/components/catcard";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { HiOutlinePlus } from "react-icons/hi";
+import { useRouter } from "next/navigation";
 
 const Profile = () => {
+  const auth = getAuth();
+  const router = useRouter();
+  const [user, setUser] = useState(null);
   const [toggleListing, setToggleListing] = useState(true);
+
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        router.push("/", undefined, { shallow: true });
+      }
+    });
+  }, []);
 
   return (
     <div className="flex flex-col items-center">
       <div className="w-24 h-24 mt-12 relative rounded-full overflow-hidden">
         <Image
-          src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dXNlcnxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60"
+          src={user?.photoURL}
           fill
           className="object-cover"
-          alt="Cat lady"
+          alt="user image"
         />
       </div>
-      <h2 className="font-bold text-xl my-2">Username</h2>
+      <h2 className="font-bold text-xl my-2">{user?.displayName}</h2>
       <div className="mt-8 mb-10 bg-zinc-100 py-2 rounded-full relative h-12 w-80">
         <div
           className={`w-40 absolute z-0 top-0 left-0 ${
