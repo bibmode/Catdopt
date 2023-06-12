@@ -2,7 +2,7 @@ import Image from "next/image";
 import React from "react";
 import { FaSearch } from "react-icons/fa";
 
-const Create = () => {
+const Edit = () => {
   return (
     <div className="flex flex-col items-center mb-24">
       <div className="w-[500px] h-[300px] bg-gray-200 rounded-xl mt-2 relative">
@@ -17,6 +17,33 @@ const Create = () => {
       {/* details form */}
       <form className="w-full md:w-1/2 px-3 mb-6 md:mb-0 mt-8 flex flex-col items-center">
         <h2 className="text-xl mb-4 font-semibold">Cat Details</h2>
+        {/* status */}
+        <div class="flex-grow mt-2 mb-6 w-full">
+          <label
+            class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+            for="grid-state"
+          >
+            Adoption Status
+          </label>
+          <div class="relative">
+            <select
+              class="block appearance-none w-full border  text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none bg-white focus:border-gray-500"
+              id="grid-state"
+            >
+              <option>For Adoption</option>
+              <option>Adopted</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+              <svg
+                class="fill-current h-4 w-4"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+              >
+                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+              </svg>
+            </div>
+          </div>
+        </div>
         {/* title */}
         <div class="w-full">
           <label
@@ -188,4 +215,4 @@ const Create = () => {
   );
 };
 
-export default Create;
+export default Edit;
