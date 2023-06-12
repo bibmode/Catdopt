@@ -1,8 +1,30 @@
+"use client";
+
 import CatCard from "@/components/catcard";
+import { collection, getDocs, getFirestore } from "firebase/firestore";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
 
 export default function Home() {
+  const [catsListings, setCatsListings] = useState([]);
+  const db = getFirestore();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const querySnapshot = await getDocs(collection(db, "cats"));
+
+      querySnapshot.forEach((doc) => {
+        const catListing = doc.data();
+        setCatsListings([...catsListings, catListing]);
+      });
+    };
+    // call the function
+    fetchData()
+      // make sure to catch any error
+      .catch(console.error);
+  }, []);
+
   return (
     <main className="flex min-h-screen flex-col items-center mb-24">
       {/* header */}
@@ -95,13 +117,9 @@ export default function Home() {
       </div>
       {/* grid */}
       <div className="w-full grid grid-cols-4 gap-6">
-        <CatCard />
-        <CatCard />
-        <CatCard />
-        <CatCard />
-        <CatCard />
-        <CatCard />
-        <CatCard />
+        {catsListings?.map((cat) => (
+          <CatCard data={cat} />
+        ))}
       </div>
     </main>
   );
