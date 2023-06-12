@@ -6,6 +6,7 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { HiOutlinePlus } from "react-icons/hi";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const Profile = () => {
   const auth = getAuth();
@@ -50,10 +51,13 @@ const Profile = () => {
         </div>
       </div>
       <div className="flex w-full justify-end mb-8">
-        <button className="py-2 px-4 rounded-full border border-slate-600 hover:border-pink-400 hover:bg-pink-50 hover:text-pink-500 flex items-center">
+        <Link
+          href="/create"
+          className="py-2 px-4 rounded-full border border-slate-600 hover:border-pink-400 hover:bg-pink-50 hover:text-pink-500 flex items-center"
+        >
           <h4 className="mr-4">Add new listing</h4>
           <HiOutlinePlus className="text-xl" />
-        </button>
+        </Link>
       </div>
       {/* grid */}
       {toggleListing ? (
