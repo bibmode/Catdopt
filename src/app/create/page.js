@@ -40,14 +40,14 @@ const Create = () => {
     });
   }, []);
 
-  const uploadImage = async () => {
+  const uploadImage = (imageData) => {
     const storage = getStorage();
-    const imageName = image.name;
+    const imageName = imageData.name;
     const storageRef = ref(storage, imageName);
 
     // 'file' comes from the Blob or File API
-    if (image) {
-      uploadBytes(storageRef, image).then((snapshot) => {
+    if (imageData) {
+      uploadBytes(storageRef, imageData).then((snapshot) => {
         console.log("Uploaded a blob or file!");
         getDownloadURL(snapshot.ref).then((url) => {
           setImageUrl(url);
@@ -63,6 +63,7 @@ const Create = () => {
       const docRef = await addDoc(collection(db, "cats"), {
         creatorImage: user.photoURL,
         creatorName: user.displayName,
+        creatorId: user.uid,
         image: imageUrl,
         title: data.title,
         age: data.age,
@@ -73,6 +74,7 @@ const Create = () => {
         facebook: data.facebook,
         phone: data.phone,
         status: true,
+
         favoritedBy: [],
       });
 
@@ -87,7 +89,6 @@ const Create = () => {
     console.log(age);
     console.log(image);
     console.log(auth.currentUser);
-    uploadImage();
     addCatDB(data);
   };
 
@@ -108,7 +109,10 @@ const Create = () => {
             accept="image/*"
             id="file-upload"
             hidden={true}
-            onChange={(e) => setImage(e.target.files[0])}
+            onChange={(e) => {
+              uploadImage(e.target.files[0]);
+              setImage(e.target.files[0]);
+            }}
           />
           {image ? (
             <Image
@@ -132,16 +136,16 @@ const Create = () => {
 
         <h2 className="text-xl mb-4 font-semibold">Cat Details</h2>
         {/* title */}
-        <div class="w-full">
+        <div className="w-full">
           <label
-            class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-            for="grid-city"
+            className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+            htmlFor="grid-city"
           >
             Title
           </label>
           <input
             {...register("title", { required: true, maxLength: 50 })}
-            class="appearance-none block w-full text-gray-700 border rounded py-3 px-4 leading-tight focus:outline-none bg-white focus:border-gray-500"
+            className="appearance-none block w-full text-gray-700 border rounded py-3 px-4 leading-tight focus:outline-none bg-white focus:border-gray-500"
             id="grid-city"
             type="text"
             placeholder="Write the title of your cat listing"
@@ -160,17 +164,17 @@ const Create = () => {
         {/* row */}
         <div className="w-full flex mt-6">
           {/* location */}
-          <div class="flex-grow mr-2">
+          <div className="flex-grow mr-2">
             <label
-              class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              for="grid-city"
+              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+              htmlFor="grid-city"
             >
               Location
             </label>
             <div className="location-form flex border rounded py-3 px-4 leading-tight focus:outline-none bg-white">
               <input
                 {...register("location", { required: true })}
-                class="appearance-none block w-full focus:outline-none leading-tight text-gray-700"
+                className="appearance-none block w-full focus:outline-none leading-tight text-gray-700"
                 id="grid-city"
                 type="text"
                 placeholder="E.g. Butuan City"
@@ -186,26 +190,26 @@ const Create = () => {
             )}
           </div>
           {/* age */}
-          <div class="flex-grow ml-2">
+          <div className="flex-grow ml-2">
             <label
-              class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              for="grid-state"
+              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+              htmlFor="grid-state"
             >
               Age
             </label>
-            <div class="relative">
+            <div className="relative">
               <select
                 {...register("age")}
                 onChange={(e) => setAge(e.target.value)}
-                class="block appearance-none w-full border  text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none bg-white focus:border-gray-500"
+                className="block appearance-none w-full border  text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none bg-white focus:border-gray-500"
                 id="grid-state"
               >
                 <option>Kitten</option>
                 <option>Adult</option>
               </select>
-              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                 <svg
-                  class="fill-current h-4 w-4"
+                  className="fill-current h-4 w-4"
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
                 >
@@ -216,27 +220,27 @@ const Create = () => {
           </div>
         </div>
         {/* breed */}
-        <div class="w-full mt-6">
+        <div className="w-full mt-6">
           <label
-            class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-            for="grid-state"
+            className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+            htmlFor="grid-state"
           >
             Breed
           </label>
-          <div class="relative">
+          <div className="relative">
             <select
               {...register("breed")}
               onChange={(e) => setBreed(e.target.value)}
-              class="block appearance-none w-full border  text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none bg-white focus:border-gray-500"
+              className="block appearance-none w-full border  text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none bg-white focus:border-gray-500"
               id="grid-state"
             >
               <option>Puspin</option>
               <option>eferfe</option>
               <option>efegtrfe</option>
             </select>
-            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
               <svg
-                class="fill-current h-4 w-4"
+                className="fill-current h-4 w-4"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
               >
@@ -246,16 +250,16 @@ const Create = () => {
           </div>
         </div>
         {/* description */}
-        <div class="w-full mt-6">
+        <div className="w-full mt-6">
           <label
-            class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-            for="grid-city"
+            className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+            htmlFor="grid-city"
           >
             Description
           </label>
           <textarea
             {...register("description", { required: true })}
-            class="appearance-none block w-full text-gray-700 border rounded py-3 px-4 leading-tight focus:outline-none bg-white focus:border-gray-500 "
+            className="appearance-none block w-full text-gray-700 border rounded py-3 px-4 leading-tight focus:outline-none bg-white focus:border-gray-500 "
             id="grid-city"
             type="text"
             rows="5"
@@ -269,10 +273,10 @@ const Create = () => {
         </div>
         <h2 className="text-xl mb-4 mt-8 font-semibold">Contact Information</h2>
         {/* phone */}
-        <div class="w-full">
+        <div className="w-full">
           <label
-            class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-            for="grid-city"
+            className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+            htmlFor="grid-city"
           >
             Phone
           </label>
@@ -282,7 +286,7 @@ const Create = () => {
               pattern:
                 /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/i,
             })}
-            class="appearance-none block w-full text-gray-700 border rounded py-3 px-4 leading-tight focus:outline-none bg-white focus:border-gray-500"
+            className="appearance-none block w-full text-gray-700 border rounded py-3 px-4 leading-tight focus:outline-none bg-white focus:border-gray-500"
             id="grid-city"
             type="number"
             placeholder="09xxxxxxxxx"
@@ -299,32 +303,32 @@ const Create = () => {
           )}
         </div>
         {/* Facebook link */}
-        <div class="w-full mt-6">
+        <div className="w-full mt-6">
           <label
-            class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-            for="grid-city"
+            className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+            htmlFor="grid-city"
           >
             Facebook Link
           </label>
           <input
             {...register("facebook")}
-            class="appearance-none block w-full text-gray-700 border rounded py-3 px-4 leading-tight focus:outline-none bg-white focus:border-gray-500"
+            className="appearance-none block w-full text-gray-700 border rounded py-3 px-4 leading-tight focus:outline-none bg-white focus:border-gray-500"
             id="grid-city"
             type="text"
             placeholder="E.g. facebook.com/janedoe"
           />
         </div>
         {/* Email */}
-        <div class="w-full mt-6">
+        <div className="w-full mt-6">
           <label
-            class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-            for="grid-city"
+            className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+            htmlFor="grid-city"
           >
             Email
           </label>
           <input
             {...register("email")}
-            class="appearance-none block w-full text-gray-700 border rounded py-3 px-4 leading-tight focus:outline-none bg-white focus:border-gray-500"
+            className="appearance-none block w-full text-gray-700 border rounded py-3 px-4 leading-tight focus:outline-none bg-white focus:border-gray-500"
             id="grid-city"
             type="text"
             placeholder="E.g. example@gmail.com"
@@ -336,6 +340,7 @@ const Create = () => {
             <button
               type="submit"
               className="flex-grow mr-1 py-2 border text-emerald-700 font-semibold border-emerald-500 hover:bg-emerald-100 rounded-xl"
+              disabled={imageUrl ? false : true}
             >
               Create
             </button>

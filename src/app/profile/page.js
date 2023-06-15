@@ -7,22 +7,55 @@ import React, { useEffect, useState } from "react";
 import { HiOutlinePlus } from "react-icons/hi";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import {
+  collection,
+  getDocs,
+  getFirestore,
+  query,
+  where,
+} from "firebase/firestore";
 
 const Profile = () => {
   const auth = getAuth();
-  const router = useRouter();
+  const db = getFirestore();
+  const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [toggleListing, setToggleListing] = useState(true);
 
+  const [catsListings, setCatsListings] = useState([]);
+  const [catsIds, setCatsIds] = useState([]);
+
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUser(user);
-      } else {
-        router.push("/", undefined, { shallow: true });
+    setUser(auth.currentUser);
+
+    const fetchData = async () => {
+      const q = query(
+        collection(db, "cats"),
+        where("creatorId", "==", auth.currentUser.uid)
+      );
+
+      try {
+        const querySnapshot = await getDocs(q);
+        const data = querySnapshot.docs.map((doc) => doc.data());
+        const dataIds = querySnapshot.docs.map((doc) => doc.id);
+        setCatsListings(data);
+        setCatsIds(dataIds);
+      } catch (error) {
+        console.error("Error fetching data:", error);
       }
-    });
+    };
+
+    setLoading(false);
+
+    // call the function
+    fetchData();
   }, []);
+
+  useEffect(() => {
+    console.log(loading);
+    console.log(catsListings);
+    setLoading(false);
+  }, [catsListings]);
 
   return (
     <div className="flex flex-col items-center">
@@ -60,23 +93,16 @@ const Profile = () => {
         </Link>
       </div>
       {/* grid */}
-      {toggleListing ? (
-        <div className="w-full grid grid-cols-4 gap-6 mb-24">
-          <CatCard created={true} />
-          <CatCard created={true} />
-          <CatCard created={true} />
-        </div>
-      ) : (
-        <div className="w-full grid grid-cols-4 gap-6 mb-24">
-          <CatCard />
-          <CatCard />
-          <CatCard />
-          <CatCard />
-          <CatCard />
-          <CatCard />
-          <CatCard />
-        </div>
-      )}
+      <div className="w-full grid grid-cols-4 gap-6 mb-24">
+        {catsListings?.map((catListing, index) => (
+          <CatCard
+            key={`cat-${index}`}
+            data={catListing}
+            dataId={catsIds[index]}
+            created={true}
+          />
+        ))}
+      </div>
     </div>
   );
 };

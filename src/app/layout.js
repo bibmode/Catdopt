@@ -21,11 +21,13 @@ const firebaseConfig = {
   measurementId: "G-3462WX8ZXK",
 };
 
-const firebase_app = !getApps().length
-  ? initializeApp(firebaseConfig)
-  : getApp();
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-const inter = Inter({ subsets: ["latin"] });
+export const db = getFirestore(app);
+export const auth = getAuth();
+export const user = auth.currentUser;
+
+const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 export const metadata = {
   title: "Create Next App",
