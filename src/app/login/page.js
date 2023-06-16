@@ -80,11 +80,3 @@ export default function login() {
     </div>
   );
 }
-
-export async function getServerSideProps(ctx) {
-  return {
-    props: {
-      data: null,
-    },
-  };
-}
