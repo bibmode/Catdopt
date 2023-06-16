@@ -9,6 +9,8 @@ import { AiOutlineSearch } from "react-icons/ai";
 export default function Home() {
   const [catsListings, setCatsListings] = useState([]);
   const [catsIds, setCatsIds] = useState([]);
+  const [breed, setBreed] = useState("");
+
   const db = getFirestore();
 
   useEffect(() => {
@@ -25,7 +27,7 @@ export default function Home() {
         console.error("Error fetching data:", error);
       }
     };
-    // call the function
+
     fetchData();
   }, []);
 
@@ -67,8 +69,8 @@ export default function Home() {
                     id="grid-state"
                   >
                     <option>Puspin</option>
-                    <option>Missouri</option>
-                    <option>Texas</option>
+                    <option>Siamese</option>
+                    <option>British Shorthair</option>
                   </select>
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                     <svg

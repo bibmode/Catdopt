@@ -1,19 +1,88 @@
 "use client";
 
-import { deleteDoc, doc, getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { deleteDoc, doc, getFirestore, updateDoc } from "firebase/firestore";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { FaRegHeart } from "react-icons/fa";
 
-function CatCard({ created = false, data, dataId }) {
+function CatCard({
+  created = false,
+  data,
+  dataId,
+  refreshPage,
+  catsFavorites,
+  setCatsFavorites,
+  catsIdsFavorites,
+  setCatsIdsFavorites,
+  showHeart = true,
+}) {
+  const [favoritedCat, setFavoritedCat] = useState(null);
   const db = getFirestore();
+  const auth = getAuth();
+  const userId = auth.currentUser.uid;
 
   useEffect(() => {
-    console.log(data);
-    console.log(dataId);
-  }, []);
+    if (catsFavorites) {
+      console.log(data);
+      console.log("catsfav: " + dataId);
+      if (catsFavorites.includes(data)) {
+        setFavoritedCat(true);
+      } else {
+        setFavoritedCat(false);
+      }
+    } else {
+      console.log(data);
+      console.log("datafavoritedby: " + dataId);
+      if (data?.favoritedBy?.includes(userId)) {
+        setFavoritedCat(true);
+      } else {
+        setFavoritedCat(false);
+      }
+    }
+  }, [catsFavorites]);
+
+  const setFavorited = async () => {
+    console.log("this is working");
+    const catRef = doc(db, "cats", dataId);
+    const insertUser = [...data.favoritedBy, auth.currentUser.uid];
+
+    try {
+      await updateDoc(catRef, {
+        favoritedBy: insertUser,
+      });
+
+      console.log("cat favorited");
+      setFavoritedCat(true);
+      setCatsFavorites([...catsFavorites, data]);
+      setCatsIdsFavorites([...catsIdsFavorites, dataId]);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const setUnFavorited = async () => {
+    console.log("this is working");
+    const catRef = doc(db, "cats", dataId);
+    const removeUser = data.favoritedBy.filter((item) => item !== userId);
+    const removeCat = catsFavorites?.filter((item) => item !== data);
+    const removeCatId = catsIdsFavorites?.filter((item) => item !== userId);
+
+    try {
+      await updateDoc(catRef, {
+        favoritedBy: removeUser,
+      });
+
+      console.log("cat unfavorited");
+      setFavoritedCat(false);
+      setCatsFavorites(removeCat);
+      setCatsIdsFavorites(removeCatId);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const deleteData = async () => {
     try {
@@ -58,9 +127,21 @@ function CatCard({ created = false, data, dataId }) {
         <Link href={`/${dataId}`} className="text-lg flex-grow">
           {data.title}
         </Link>
-        <button className="text-3xl hover:text-pink-500">
-          <AiOutlineHeart />
-        </button>
+        {favoritedCat ? (
+          <button
+            onClick={() => setUnFavorited()}
+            className="text-3xl hover:text-pink-500"
+          >
+            {showHeart && <AiFillHeart />}
+          </button>
+        ) : (
+          <button
+            onClick={() => setFavorited()}
+            className="text-3xl hover:text-pink-500"
+          >
+            {showHeart && <AiOutlineHeart />}
+          </button>
+        )}
       </div>
       <Link
         href={`/${dataId}`}

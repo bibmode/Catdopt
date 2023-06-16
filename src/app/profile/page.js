@@ -11,6 +11,7 @@ import {
   collection,
   getDocs,
   getFirestore,
+  onSnapshot,
   query,
   where,
 } from "firebase/firestore";
@@ -18,44 +19,101 @@ import {
 const Profile = () => {
   const auth = getAuth();
   const db = getFirestore();
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [toggleListing, setToggleListing] = useState(true);
 
   const [catsListings, setCatsListings] = useState([]);
   const [catsIds, setCatsIds] = useState([]);
+  const [catsFavorites, setCatsFavorites] = useState([]);
+  const [catsIdsFavorites, setCatsIdsFavorites] = useState([]);
+
+  const [test, setTest] = useState([]);
+
+  const refreshPage = () => {
+    router.replace(router.pathname);
+  };
 
   useEffect(() => {
-    setUser(auth.currentUser);
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+        const qFavorites = query(
+          collection(db, "cats"),
+          where("favoritedBy", "array-contains", user.uid)
+        );
 
-    const fetchData = async () => {
-      const q = query(
-        collection(db, "cats"),
-        where("creatorId", "==", auth.currentUser.uid)
-      );
+        const unsubscribeFavorites = onSnapshot(qFavorites, (querySnapshot) => {
+          const dataArray = querySnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          setCatsFavorites(dataArray);
+          console.log("-----" + dataArray);
+        });
 
-      try {
-        const querySnapshot = await getDocs(q);
-        const data = querySnapshot.docs.map((doc) => doc.data());
-        const dataIds = querySnapshot.docs.map((doc) => doc.id);
-        setCatsListings(data);
-        setCatsIds(dataIds);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
+        const qCreated = query(
+          collection(db, "cats"),
+          where("createdBy", "==", user.uid)
+        );
 
-    setLoading(false);
-
-    // call the function
-    fetchData();
+        const unsubscribeCreated = onSnapshot(qCreated, (querySnapshot) => {
+          const dataArray = querySnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          setCatsListings(dataArray);
+          console.log("-----" + dataArray);
+        });
+      } else setUser(null);
+    });
   }, []);
 
   useEffect(() => {
     console.log(loading);
     console.log(catsListings);
-    setLoading(false);
+    if (loading) setLoading(false);
   }, [catsListings]);
+
+  useEffect(() => {
+    if (user) {
+      const fetchData = async () => {
+        setLoading(true);
+        const q = query(
+          collection(db, "cats"),
+          where("creatorId", "==", auth.currentUser?.uid)
+        );
+        const qFavorites = query(
+          collection(db, "cats"),
+          where("favoritedBy", "array-contains", auth.currentUser?.uid)
+        );
+
+        try {
+          const querySnapshot = await getDocs(q);
+          const data = querySnapshot.docs.map((doc) => doc.data());
+          const dataIds = querySnapshot.docs.map((doc) => doc.id);
+          setCatsListings(data);
+          setCatsIds(dataIds);
+
+          const queryFavoritesSnapshot = await getDocs(qFavorites);
+          const dataFavorites = queryFavoritesSnapshot.docs.map((doc) =>
+            doc.data()
+          );
+          const dataIdsFavorites = queryFavoritesSnapshot.docs.map(
+            (doc) => doc.id
+          );
+          setCatsFavorites(dataFavorites);
+          setCatsIdsFavorites(dataIdsFavorites);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      };
+
+      // call the function
+      fetchData();
+    }
+  }, [user]);
 
   return (
     <div className="flex flex-col items-center">
@@ -93,16 +151,45 @@ const Profile = () => {
         </Link>
       </div>
       {/* grid */}
-      <div className="w-full grid grid-cols-4 gap-6 mb-24">
-        {catsListings?.map((catListing, index) => (
-          <CatCard
-            key={`cat-${index}`}
-            data={catListing}
-            dataId={catsIds[index]}
-            created={true}
-          />
-        ))}
-      </div>
+      {toggleListing ? (
+        <div className="w-full grid grid-cols-4 gap-6 mb-24">
+          {!loading &&
+            catsListings?.map((catListing, index) => (
+              <CatCard
+                key={`cat-${index}`}
+                indexOfId={index}
+                data={catListing}
+                dataId={catsIds[index]}
+                created={true}
+                refreshPage={refreshPage}
+                catsFavorites={catsFavorites}
+                setCatsFavorites={setCatsFavorites}
+                catsIdsFavorites={catsIdsFavorites}
+                setCatsIdsFavorites={setCatsIdsFavorites}
+                showHeart={false}
+              />
+            ))}
+        </div>
+      ) : (
+        <div className="w-full grid grid-cols-4 gap-6 mb-24">
+          {!loading &&
+            catsFavorites?.map((cat, index) => (
+              <CatCard
+                key={`cat-2-${index}`}
+                data={cat}
+                indexOfId={index}
+                dataId={catsIdsFavorites[index]}
+                created={false}
+                favoriteInit={true}
+                refreshPage={refreshPage}
+                catsFavorites={catsFavorites}
+                setCatsFavorites={setCatsFavorites}
+                catsIdsFavorites={catsIdsFavorites}
+                setCatsIdsFavorites={setCatsIdsFavorites}
+              />
+            ))}
+        </div>
+      )}
     </div>
   );
 };
