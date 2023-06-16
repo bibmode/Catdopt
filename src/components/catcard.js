@@ -22,7 +22,7 @@ function CatCard({
   const [favoritedCat, setFavoritedCat] = useState(null);
   const db = getFirestore();
   const auth = getAuth();
-  const userId = auth.currentUser.uid;
+  const userId = auth?.currentUser?.uid;
 
   useEffect(() => {
     if (catsFavorites) {
@@ -36,7 +36,7 @@ function CatCard({
     } else {
       console.log(data);
       console.log("datafavoritedby: " + dataId);
-      if (data?.favoritedBy?.includes(userId)) {
+      if (userId && data?.favoritedBy?.includes(userId)) {
         setFavoritedCat(true);
       } else {
         setFavoritedCat(false);
@@ -132,14 +132,14 @@ function CatCard({
             onClick={() => setUnFavorited()}
             className="text-3xl hover:text-pink-500"
           >
-            {showHeart && <AiFillHeart />}
+            {showHeart && userId && <AiFillHeart />}
           </button>
         ) : (
           <button
             onClick={() => setFavorited()}
             className="text-3xl hover:text-pink-500"
           >
-            {showHeart && <AiOutlineHeart />}
+            {showHeart && userId && <AiOutlineHeart />}
           </button>
         )}
       </div>
