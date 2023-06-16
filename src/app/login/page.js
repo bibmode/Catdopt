@@ -12,7 +12,7 @@ import {
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-export default function login() {
+export default function Login() {
   const auth = getAuth();
   const provider = new GoogleAuthProvider();
   const router = useRouter();
